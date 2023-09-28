@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const Fruit = require('../models/fruit')
-const chechauth = require('../check-auth')
+const checkAuth = require('../check-auth') 
 
 router.get('', (req, res) => {
     Fruit.find().then((fruits) => {
@@ -13,11 +13,13 @@ router.get('', (req, res) => {
         )
     })
 })
-router.post('', chechauth, (req, res) => {
+
+router.post('', checkAuth, (req, res) => {
     const fruit = new Fruit(
         {
             id: req.body.id,
-            name: req.body.name
+            name: req.body.name,
+            userId: req.userData.userId  
         }
     )
     fruit.save();
@@ -26,11 +28,21 @@ router.post('', chechauth, (req, res) => {
         fruit: fruit
     })
 })
-router.delete("/:id", chechauth, (req, res) => {
-    Fruit.deleteOne({ _id: req.params.id })
-        .then((result) => {
-            res.status(200).json({ message: "Fruit Deleted" });
-        });
-})
 
-module.exports = router
+router.delete('', checkAuth, (req, res) => {
+    const idToDelete = req.body.id;  
+
+    
+    Fruit.deleteOne({ _id: idToDelete, userId: req.userData.userId })
+        .then((result) => {
+            if (result.deletedCount === 0) {
+                return res.status(404).json({ message: "Fruit not found" });
+            }
+            res.status(200).json({ message: "Fruit Deleted" });
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err });
+        });
+});
+
+module.exports = router;
