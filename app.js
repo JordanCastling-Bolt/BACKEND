@@ -1,47 +1,62 @@
-const express = require('express')
+// Import required modules
+const express = require('express');
 const cors = require('cors');
-const app = express()
-const urlprefix = '/api'
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const fs = require('fs');
+require('dotenv').config();
+
+
+// Define constants
+const app = express();
+const urlprefix = '/api';
+
+// Read SSL certificate
 const cert = fs.readFileSync('keys/certificate.pem');
 
+// MongoDB connection options
 const options = {
     server: { sslCA: cert }
 };
 
-const connstring = 'mongodb+srv://jdcastlingbolt:JHiwDc31ZV2JHQoS@cluster0.aavwrft.mongodb.net/?retryWrites=true&w=majority'
+// MongoDB connection string
+const connstring = process.env.MONGODB_CONN_STRING;
 
+// Import route handlers
 const fruitRoutes = require("./routes/fruit");
 const userRoutes = require('./routes/user');
 const sanityRoutes = require("./routes/sanity");
 
+// Establish MongoDB connection
 mongoose.connect(connstring)
     .then(() => {
-        console.log('Connected :-)')
+        console.log('Connected :-)');  // Log success
     })
     .catch(() => {
-        console.log('NOT Connected :-(')
+        console.log('NOT Connected :-(');  // Log failure
     }, options);
 
-
-app.use((req, res, next) => { 
-    res.setHeader('Access-Control-Allow-Origin', '*'); 
-    res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization'); 
-    res.setHeader('Access-Control-Allow-Methods', '*'); 
-    next(); 
+// Middleware to set CORS headers
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    next();
 });
 
+// Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
 
+// Attach routes to URL paths
 app.use(urlprefix + '/fruits', fruitRoutes);
 app.use(urlprefix + '/users', userRoutes);
 app.use(urlprefix, sanityRoutes);
 
+// Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-  });
+    console.error(err.stack);  // Log error stack
+    res.status(500).send('Something broke!');  // Send error response
+});
 
-module.exports = app
+// Export the app module
+module.exports = app;
