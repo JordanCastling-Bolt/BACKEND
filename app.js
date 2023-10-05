@@ -22,7 +22,7 @@ const options = {
 const connstring = process.env.MONGODB_CONN_STRING;
 
 // Import route handlers
-const fruitRoutes = require("./routes/fruit");
+const postRoutes = require("./routes/post");
 const userRoutes = require('./routes/user');
 const sanityRoutes = require("./routes/sanity");
 
@@ -48,7 +48,7 @@ app.use(cors());
 app.use(express.json());
 
 // Attach routes to URL paths
-app.use(urlprefix + '/fruits', fruitRoutes);
+app.use(urlprefix + '/posts', postRoutes);
 app.use(urlprefix + '/users', userRoutes);
 app.use(urlprefix, sanityRoutes);
 
