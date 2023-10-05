@@ -49,7 +49,7 @@ require('dotenv').config();
 
 ## Endpoints
 
-- `/api/fruits`: Manage fruits
+- `/api/posts`: Manage posts
 - `/api/users`: Manage users
 - `/api`: Sanity checks
 
