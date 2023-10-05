@@ -29,7 +29,7 @@ router.post('', checkAuth, (req, res) => {
     const post = new Post({
         id: req.body.id,
         title: req.body.title,
-        post: req.body.post,  // Include the post field from the request body
+        post: req.body.post,  
         userId: req.userData.userId  
     });
     
