@@ -1,6 +1,6 @@
 # Node.js and Express Backend Service
 
-This backend service is built using Node.js and Express. It provides a RESTful API for managing users and fruits, as well as a JWT-based authentication mechanism.
+This backend service is built using Node.js and Express. It provides a RESTful API for managing users and posts, as well as a JWT-based authentication mechanism.
 
 ## Table of Contents
 - [Installation](#installation)
