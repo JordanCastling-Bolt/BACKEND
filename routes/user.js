@@ -1,73 +1,106 @@
 // Required Modules
-const express = require('express');
-const router = express.Router();
-const User = require('../models/user');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const express = require('express');  // Express.js for routing
+const router = express.Router();  // Router instance from Express
+const { UserModel: User, validateUser } = require('../models/user');  // Importing User model and validation function
+const bcrypt = require('bcrypt');  // For hashing passwords
+const jwt = require('jsonwebtoken');  // For generating JWT tokens
 
-// POST: Endpoint for User Signup
-// This route allows a new user to create an account.
+/**
+ * POST: Endpoint for User Signup
+ * This endpoint is responsible for registering new users.
+ * The incoming request should contain username, password, firstName, and lastName in JSON format.
+ */
 router.post('/signup', (req, res) => {
-    // Hash the password using bcrypt with 10 rounds of salting
+    // Validate user data against predefined Joi schema
+    const { error } = validateUser(req.body);
+    if (error) {
+        // If validation fails, return a 400 Bad Request status code and validation error message
+        return res.status(400).send(error.details[0].message);
+    }
+    
+    // Hash the user's password using bcrypt
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
-            // Create a new User document using the hashed password and provided username
+            // Create a new User document using the hashed password and other provided details
             const user = new User({
                 username: req.body.username,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
                 password: hash
             });
-            // Save the new user to the database
+            
+            // Persist the User document to the database
             return user.save();
         })
         .then(result => {
-            // Send a successful response with status 201 (Created)
+            // On successful registration, return a 201 Created status code and result
             res.status(201).json({
                 message: 'User created',
                 result: result
             });
         })
         .catch(err => {
-            // Handle any errors that occur and send a 500 (Internal Server Error) status
+            // Log error for debugging and return a 500 Internal Server Error status code
+            console.error(err);
             res.status(500).json({
-                error: err
+                message: 'Internal Server Error',
+                error: err.message
             });
         });
 });
 
-// POST: Endpoint for User Login
-// This route allows existing users to log in to their accounts.
+/**
+ * POST: Endpoint for User Login
+ * This endpoint is responsible for authenticating existing users.
+ * The incoming request should contain username and password in JSON format.
+ */
 router.post('/login', (req, res) => {
-    let fetchedUser;
-    // Find the user in the database by username
+    // Validate user data against predefined Joi schema
+    const { error } = validateUser(req.body);
+    if (error) {
+        // If validation fails, return a 400 Bad Request status code and validation error message
+        return res.status(400).send(error.details[0].message);
+    }
+
+    let fetchedUser;  // To store the fetched user document
+    
+    // Query the database to find the user by username
     User.findOne({ username: req.body.username })
         .then(user => {
             if (!user) {
-                // If the username is not found, send a 401 (Unauthorized) status
-                return res.status(401).json({ message: "Authentication failed" });
+                // If user is not found, reject the promise
+                return Promise.reject(new Error("Authentication failed"));
             }
             fetchedUser = user;
-            // Compare the provided password with the stored hashed password
+            
+            // Compare provided password with stored hashed password
             return bcrypt.compare(req.body.password, user.password);
         })
         .then(result => {
             if (!result) {
-                // If the password does not match, send a 401 (Unauthorized) status
-                return res.status(401).json({ message: "Authentication failed" });
+                // If passwords do not match, reject the promise
+                return Promise.reject(new Error("Authentication failed"));
             }
-            // Generate a JWT token
+            
+            // Generate a JWT token for the authenticated user
             const token = jwt.sign(
                 { username: fetchedUser.username, userId: fetchedUser._id },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
-            // Send the token back to the client
+            
+            // Send the generated token to the client
             res.status(200).json({ token: token });
         })
         .catch(err => {
-            // Handle any errors that occur and send a 500 (Internal Server Error) status
-            res.status(500).json({ message: "Internal Server Error" });
+            // Log error for debugging and return a 500 Internal Server Error status code
+            console.error(err);
+            res.status(500).json({
+                message: 'Internal Server Error',
+                error: err.message
+            });
         });
 });
 
-// Exporting the router for use in other parts of the application
+// Export the router for mounting in the main application file
 module.exports = router;
