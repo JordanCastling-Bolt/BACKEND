@@ -32,7 +32,7 @@ This backend service is built using Node.js and Express. It provides a RESTful A
     npm run dev
     ```
 
-## Environment Variables
+## Environment Variables (For APDS Submission the file has been added)
 
 To securely manage secrets, create a `.env` file at the root of your project and populate it as follows:
 
