@@ -55,7 +55,7 @@ router.delete('', checkAuth, (req, res) => {
     const idToDelete = req.body.id;
     
     // Using Mongoose's deleteOne method to delete the specified post
-    Post.deleteOne({ _id: idToDelete, userId: req.userData.userId })
+    Post.deleteOne({ _id: idToDelete })
         .then((result) => {
             // Checking if any documents were actually deleted
             if (result.deletedCount === 0) {
@@ -70,6 +70,7 @@ router.delete('', checkAuth, (req, res) => {
             res.status(500).json({ error: err });
         });
 });
+
 
 // Exporting the router for use in other parts of the application
 module.exports = router;

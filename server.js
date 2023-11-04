@@ -1,5 +1,5 @@
 // Import required modules
-const http = require('https');
+const https = require('https');
 const app = require('./app');
 const fs = require('fs');
 
@@ -11,7 +11,7 @@ const privateKey = fs.readFileSync('keys/privatekey.pem');
 const certificate = fs.readFileSync('keys/certificate.pem');
 
 // Create an HTTPS server with SSL options
-const server = http.createServer(
+const server = https.createServer(
     {
         key: privateKey,  // Private key for SSL
         cert: certificate // SSL certificate
