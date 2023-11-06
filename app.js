@@ -12,7 +12,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 // Read SSL certificate
-const cert = fs.readFileSync('keys/certificate.pem');
+const cert = fs.readFileSync('keys/mydomain.crt');
 
 // MongoDB connection options
 const options = {

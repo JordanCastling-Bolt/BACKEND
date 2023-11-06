@@ -7,8 +7,8 @@ const fs = require('fs');
 const port = 3000;
 
 // Read SSL certificate and private key files
-const privateKey = fs.readFileSync('keys/privatekey.pem');
-const certificate = fs.readFileSync('keys/certificate.pem');
+const privateKey = fs.readFileSync('keys/mydomain.key');
+const certificate = fs.readFileSync('keys/mydomain.crt');
 
 // Create an HTTPS server with SSL options
 const server = https.createServer(
