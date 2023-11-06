@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 require('dotenv').config();
 
-
 // Define constants
 const app = express();
 const urlprefix = '/api';
+const helmet = require('helmet');
+const morgan = require('morgan');
 
 // Read SSL certificate
 const cert = fs.readFileSync('keys/certificate.pem');
@@ -42,6 +43,9 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', '*');
     next();
 });
+
+app.use(helmet());
+app.use(morgan('combined'));  // or choose another format
 
 // Enable CORS and JSON parsing
 app.use(cors());

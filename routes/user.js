@@ -4,13 +4,15 @@ const router = express.Router();  // Router instance from Express
 const { UserModel: User, validateUser } = require('../models/user');  // Importing User model and validation function
 const bcrypt = require('bcrypt');  // For hashing passwords
 const jwt = require('jsonwebtoken');  // For generating JWT tokens
-
+const ExpressBrute = require('express-brute');
+const store = new ExpressBrute.MemoryStore();
+const bruteforce = new ExpressBrute(store);
 /**
  * POST: Endpoint for User Signup
  * This endpoint is responsible for registering new users.
  * The incoming request should contain username, password, firstName, and lastName in JSON format.
  */
-router.post('/signup', (req, res) => {
+router.post('/signup', bruteforce.prevent, (req, res) => {
     // Validate user data against predefined Joi schema
     const { error } = validateUser(req.body);
     if (error) {
@@ -54,7 +56,7 @@ router.post('/signup', (req, res) => {
  * This endpoint is responsible for authenticating existing users.
  * The incoming request should contain username and password in JSON format.
  */
-router.post('/login', (req, res) => {
+router.post('/login', bruteforce.prevent, (req, res) => {
     // Validate user data against predefined Joi schema
     const { error } = validateUser(req.body);
     if (error) {
